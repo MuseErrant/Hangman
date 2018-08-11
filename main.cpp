@@ -5,39 +5,43 @@
 #include <ctime>
 
 using namespace std;
+
 // function prototypes
 char get_guess ();
+bool is_guess_valid (char guess);
 string check_guess (char guess, string answer, string user_answer, string updated_answer);
 bool check_game_won (string user_answer, string answer);
 
 char guess {};
-int num_lives {4};
+int num_lives {4};  // TODO create different levels of difficulty which correspond to different word length / number of lives permutations
 bool is_game_won {0};
 
 int main() {
-    bool guess_again {1};
-    vector <string> word_list {"arrived", "radiator", "tree", "lamp", "laptop"};
-    
     cout << "........................................." << endl;
     cout << "Hangman - the classic word guessing game!" << endl;
     cout << "........................................." << endl;
     cout << "\nNote: guess '*' to quit" << endl;
     
-    srand(static_cast<unsigned int>(time(0)));
-    int random_number = rand();
-    int word_index = (random_number % 5);
-    string answer = word_list.at(word_index);
-    const int length = answer.size();
-    string user_answer (length, '_');
-    string updated_answer {};
+    vector <string> word_list {"arrived", "radiator", "tree", "lamp", "laptop", "mouse", "bat", "sport", "cow", "telescope", "curtain", "bag", "mobile", "butterfly"};    // list of possible words the user must guess 
     
-    cout << "\nHidden Word: ";
+    srand(static_cast<unsigned int>(time(0)));  // seed the random number generator using the current time
+    int random_number = rand();
+    const int max_words = word_list.size();
+    int word_index = (random_number % max_words);   // makes sure the random number is in the range (0 - max number of words)
+    
+    string answer = word_list.at(word_index);  // choose a random word from the list
+    const int length = answer.size();
+    string user_answer (length, '_');   // creates a starting dummy answer
+    string updated_answer {};   // if the user enters a correct guess it is stored here
+    
+    cout << "\nHidden Word: "; 
     for (auto i : answer) {
         cout << "_ ";
         }
     cout << "(" << length << " letters)"; 
-    
-    do {
+
+    bool guess_again {1};
+    do {    // main game loop
         check_game_won (user_answer, answer);
         if (is_game_won == 1) {
             cout << "\nCongratulations! You did it!" << endl;
@@ -45,18 +49,22 @@ int main() {
         } else {
             if (num_lives != 0) {
                 cout << "\n" << num_lives << " lives remaining." << endl;
-                get_guess();
-            if (guess != '*') {
-                user_answer = check_guess(guess, answer, user_answer, updated_answer);
+                do {
+                    get_guess();
+                    if (is_guess_valid(guess)) {
+                        if (guess != '*') {
+                            user_answer = check_guess(guess, answer, user_answer, updated_answer);
+                        } else {
+                        guess_again = 0;
+                        }
+                    }
+                } while (is_guess_valid == 0);
                 } else {
-                    guess_again = 0;
-                }
-            } else {
                 cout << "\nBad luck! You have no lives left :(" << endl;
                 guess_again = 0;
             }
         }
-    } while (guess_again != 0);
+    } while (guess_again != 0); // TODO add an option to play again with a different word
     cout << "\nThank you for playing! Goodbye!" << endl;
     return 0;
 }
@@ -67,12 +75,21 @@ int main() {
             return guess;
     }
     
+    bool is_guess_valid (char guess) {  // TODO recognise capitals as correct guesses
+            if ( ( guess >= 65 && guess <= 90 ) || ( guess >= 97 && guess <= 122 ) || guess == 42 ) {
+                return 1;
+            } else {
+                cout << "Please enter a letter (a-z)." << endl;
+                return 0;
+            }
+    }
+    
     string check_guess (char guess, string answer, string user_answer, string updated_answer) {
             int found = answer.find(guess);
-            if (found != string::npos) {
+            if (found != string::npos) {    // if the guessed letter is in the answer
                 for (int i = 0; i < answer.size(); ++i) {
                     if (guess == answer.at(i) ) {
-                        user_answer.at(i) = answer.at(i);
+                        user_answer.at(i) = answer.at(i);   // updates the users answer with the correct guess
                     }
                 }
                 cout << "Well done!" << endl;
