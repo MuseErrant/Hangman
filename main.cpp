@@ -7,13 +7,15 @@
 using namespace std;
 
 // function prototypes
+int choose_difficulty();
 char get_guess ();
 bool is_guess_valid (char guess);
 string check_guess (char guess, string answer, string user_answer, string updated_answer);
 bool check_game_won (string user_answer, string answer);
 
 char guess {};
-int num_lives {4};  // TODO create different levels of difficulty which correspond to different word length / number of lives permutations
+int difficulty {};
+int num_lives {4};
 bool is_game_won {0};
 
 int main() {
@@ -22,14 +24,28 @@ int main() {
     cout << "........................................." << endl;
     cout << "\nNote: guess '*' to quit" << endl;
     
-    vector <string> word_list {"arrived", "radiator", "tree", "lamp", "laptop", "mouse", "bat", "sport", "cow", "telescope", "curtain", "bag", "mobile", "butterfly"};    // list of possible words the user must guess 
+    vector<vector<string> > word_list {
+                                                                {"bat", "cow", "bag"},                              // three letters
+                                                                {"tree", "lamp", "girl"},                           // four
+                                                                {"mouse", "sport", "grass"},                // five
+                                                                {"jigsaw", "mobile", "laptop"},         // six
+                                                                {"arrived", "quicker", "equinox"}   // seven
+                                                            };    
     
     srand(static_cast<unsigned int>(time(0)));  // seed the random number generator using the current time
     int random_number = rand();
-    const int max_words = word_list.size();
-    int word_index = (random_number % max_words);   // makes sure the random number is in the range (0 - max number of words)
+    const int max_words = word_list.at(difficulty).size();
+    int word_index = (random_number % max_words);      // makes sure the random number is in the range (0 - max number of words)
     
-    string answer = word_list.at(word_index);  // choose a random word from the list
+    choose_difficulty();
+    if (difficulty > 3) {
+        --num_lives;
+        } 
+        else if (difficulty <= 2) {
+        ++num_lives;    
+        }
+    
+    string answer = word_list.at(difficulty - 1).at(word_index);  // choose a random word from the list
     const int length = answer.size();
     string user_answer (length, '_');   // creates a starting dummy answer
     string updated_answer {};   // if the user enters a correct guess it is stored here
@@ -68,6 +84,12 @@ int main() {
     cout << "\nThank you for playing! Goodbye!" << endl;
     return 0;
 }
+
+    int choose_difficulty() {
+            cout << "\nPlease choose a level of difficulty from 1 (easiest) to 5 (hardest): ";
+            cin >> difficulty;
+            return difficulty;
+    }
 
     char get_guess () {
             cout << "\nWhat's your guess? ";
