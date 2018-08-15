@@ -7,16 +7,11 @@
 using namespace std;
 
 // function prototypes
-int choose_difficulty();
-string get_guess ();
+void choose_difficulty(int &difficulty);
+void get_guess (string &guess);
 bool is_guess_valid (string guess);
-string check_guess (string guess, string answer, string user_answer, string updated_answer);
-bool check_game_won (string user_answer, string answer);
-
-string guess {};
-int difficulty {};
-int num_lives {4};
-bool is_game_won {0};
+string check_guess (string guess, string answer, string user_answer, string updated_answer, int &num_lives);
+void check_game_won (string user_answer, string answer, bool &is_game_won);
 
 int main() {
     cout << "........................................." << endl;
@@ -31,19 +26,20 @@ int main() {
                                                                 {"jigsaw", "mobile", "laptop"},         // six
                                                                 {"arrived", "quicker", "equinox"}   // seven
                                                             };    
-    
-    srand(static_cast<unsigned int>(time(0)));  // seed the random number generator using the current time
-    int random_number = rand();
-    const int max_words = word_list.at(difficulty).size();
-    int word_index = (random_number % max_words);      // makes sure the random number is in the range (0 - max number of words)
-    
-    choose_difficulty();
+    int num_lives {4};
+    int difficulty = {};
+    choose_difficulty(difficulty);
     if (difficulty > 3) {
         --num_lives;
         } 
         else if (difficulty <= 2) {
         ++num_lives;    
         }
+    
+    srand(static_cast<unsigned int>(time(0)));  // seed the random number generator using the current time
+    int random_number = rand();
+    const int max_words = word_list.at(difficulty - 1).size();      // difficulty selects the row of the 2D vector
+    int word_index = (random_number % max_words);      // makes sure the random number is in the range (0 - max number of words)
     
     string answer = word_list.at(difficulty - 1).at(word_index);  // choose a random word from the list
     const int length = answer.size();
@@ -57,8 +53,9 @@ int main() {
     cout << "(" << length << " letters)"; 
 
     bool guess_again {1};
-    do {    // main game loop
-        check_game_won (user_answer, answer);
+    do {                   // main game loop
+        bool is_game_won {0};
+        check_game_won (user_answer, answer, is_game_won);
         if (is_game_won == 1) {
             cout << "\nCongratulations! You did it!" << endl;
             guess_again = 0;
@@ -66,10 +63,11 @@ int main() {
             if (num_lives != 0) {
                 cout << "\n" << num_lives << " lives remaining." << endl;
                 do {
-                    get_guess();
+                    string guess {};        // will be used to store the user's guess
+                    get_guess(guess);
                     if (is_guess_valid(guess)) {
                         if (guess[0] != '*') {
-                            user_answer = check_guess(guess, answer, user_answer, updated_answer);
+                            user_answer = check_guess(guess, answer, user_answer, updated_answer, num_lives);
                         } else {
                         guess_again = 0;
                         }
@@ -86,16 +84,14 @@ int main() {
     return 0;
 }
 
-    int choose_difficulty() {
+    void choose_difficulty (int &difficulty) {
             cout << "\nPlease choose a level of difficulty from 1 (easiest) to 5 (hardest): ";
             cin >> difficulty;
-            return difficulty;
     }
 
-    string get_guess () {
+    void get_guess (string &guess) {
             cout << "\nWhat's your guess? ";
             cin >> guess;
-            return guess;
     }
     
     bool is_guess_valid (string guess) {  
@@ -110,7 +106,7 @@ int main() {
             }
     }
     
-    string check_guess (string guess, string answer, string user_answer, string updated_answer) {
+    string check_guess (string guess, string answer, string user_answer, string updated_answer, int &num_lives) {
             if (isupper(guess[0])) {
                 guess = tolower(guess[0]);
                 }
@@ -135,9 +131,8 @@ int main() {
         }
     }
     
-    bool check_game_won (string user_answer, string answer) {
+    void check_game_won (string user_answer, string answer, bool &is_game_won) {
         if (user_answer == answer) {
         is_game_won = 1;
         }
-        return is_game_won;
     }
