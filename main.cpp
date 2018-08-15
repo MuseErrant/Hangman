@@ -97,7 +97,7 @@ int main() {
             return guess;
     }
     
-    bool is_guess_valid (char guess) {  // TODO recognise capitals as correct guesses
+    bool is_guess_valid (char guess) {  
             if ( ( guess >= 65 && guess <= 90 ) || ( guess >= 97 && guess <= 122 ) || guess == 42 ) {
                 return 1;
             } else {
@@ -107,6 +107,9 @@ int main() {
     }
     
     string check_guess (char guess, string answer, string user_answer, string updated_answer) {
+            if (isupper(guess)) {
+                guess = tolower(guess);
+                }
             int found = answer.find(guess);
             if (found != string::npos) {    // if the guessed letter is in the answer
                 for (int i = 0; i < answer.size(); ++i) {
