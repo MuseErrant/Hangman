@@ -8,12 +8,12 @@ using namespace std;
 
 // function prototypes
 int choose_difficulty();
-char get_guess ();
-bool is_guess_valid (char guess);
-string check_guess (char guess, string answer, string user_answer, string updated_answer);
+string get_guess ();
+bool is_guess_valid (string guess);
+string check_guess (string guess, string answer, string user_answer, string updated_answer);
 bool check_game_won (string user_answer, string answer);
 
-char guess {};
+string guess {};
 int difficulty {};
 int num_lives {4};
 bool is_game_won {0};
@@ -68,7 +68,7 @@ int main() {
                 do {
                     get_guess();
                     if (is_guess_valid(guess)) {
-                        if (guess != '*') {
+                        if (guess[0] != '*') {
                             user_answer = check_guess(guess, answer, user_answer, updated_answer);
                         } else {
                         guess_again = 0;
@@ -77,6 +77,7 @@ int main() {
                 } while (is_guess_valid == 0);
                 } else {
                 cout << "\nBad luck! You have no lives left :(" << endl;
+                cout << "\nThe word was: " << answer << endl;
                 guess_again = 0;
             }
         }
@@ -91,29 +92,32 @@ int main() {
             return difficulty;
     }
 
-    char get_guess () {
+    string get_guess () {
             cout << "\nWhat's your guess? ";
             cin >> guess;
             return guess;
     }
     
-    bool is_guess_valid (char guess) {  
-            if ( ( guess >= 65 && guess <= 90 ) || ( guess >= 97 && guess <= 122 ) || guess == 42 ) {
+    bool is_guess_valid (string guess) {  
+            if (guess.length() > 1) {
+                cout << "Please enter only one letter." << endl;
+                return 0;
+            } else if (( guess[0] >= 65 && guess[0] <= 90 ) || ( guess[0] >= 97 && guess[0] <= 122 ) || guess[0] == 42) {     // makes sure the guess is a character of the alphabet or *
                 return 1;
-            } else {
+                } else {
                 cout << "Please enter a letter (a-z)." << endl;
                 return 0;
             }
     }
     
-    string check_guess (char guess, string answer, string user_answer, string updated_answer) {
-            if (isupper(guess)) {
-                guess = tolower(guess);
+    string check_guess (string guess, string answer, string user_answer, string updated_answer) {
+            if (isupper(guess[0])) {
+                guess = tolower(guess[0]);
                 }
             int found = answer.find(guess);
             if (found != string::npos) {    // if the guessed letter is in the answer
                 for (int i = 0; i < answer.size(); ++i) {
-                    if (guess == answer.at(i) ) {
+                    if (guess[0] == answer.at(i) ) {
                         user_answer.at(i) = answer.at(i);   // updates the users answer with the correct guess
                     }
                 }
